@@ -5,6 +5,7 @@ from pandas import ExcelWriter
 import matplotlib.pyplot as plt
 import base64
 
+
 # Main function that runs the app
 def main():
     st.title("AE Territory Realignment")
@@ -12,27 +13,29 @@ def main():
                 ### Directions:
                 1. Upload a CSV file with three columns in the following order: Account_ID, AE, Sales LFY.
                 2. Select the AEs you want to consider for realignment.
-                3. The summary stats will be displayed for the selected AEs.
-                4. You can download the results by clicking on the 'Export Results' button.
+                3. Use the reassignment tool to move accounts between AEs.
+                4. The summary stats will update as you make changes.
+                5. You can download the results by clicking on the 'Export Results' button.
                 """)
-    
-    # Load data
-    data_file = st.file_uploader("Upload CSV", type=['csv'])
-    if data_file is not None:
-        data = load_data(data_file)
-        display_data(data)
-        
-        # Select AEs
-        ae_selection = select_aes(data)
-        
-        # If AE is selected
+
+    file = st.file_uploader("Upload data", type=['csv'])
+
+    if file is not None:
+        data = pd.read_csv(file)
+        ae_list = data[data.columns[1]].unique().tolist()
+        ae_selection = st.multiselect('Select AE(s) for realignment', ae_list)
+
         if ae_selection:
-            display_summary(data, ae_selection)
             data = realignment_interface(data, ae_selection)
+            display_summary(data, ae_selection)
             display_data(data)
-            
-            if st.button('Export Results'):
-                export_results(data)
+
+        if st.button('Export Results'):
+            csv = data.to_csv(index=False)
+            b64 = base64.b64encode(csv.encode()).decode()
+            href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a>'
+            st.markdown(href, unsafe_allow_html=True)
+
 
 # Adds an interface for account realignment
 def realignment_interface(data, ae_selection):
@@ -55,20 +58,24 @@ def realignment_interface(data, ae_selection):
 
     return data
 
+
 # Loads and preprocesses the data
 def load_data(file):
     data = pd.read_csv(file)
     return data
 
+
 # Displays a subset of the data
 def display_data(data):
     st.write(data.head())  # You can add a slider to control the number of rows displayed
+
 
 # Allows users to select AEs
 def select_aes(data):
     ae_list = data['AE'].unique().tolist()
     ae_selection = st.multiselect('Select AEs for realignment', ae_list)
     return ae_selection
+
 
 # Display summary stats
 def display_summary(data, ae_selection):
@@ -86,12 +93,14 @@ def display_summary(data, ae_selection):
 
     st.pyplot(fig)
 
+
 # Export final results to Excel
 def export_results(data):
     excel_file = 'results.xlsx'
     with ExcelWriter(excel_file) as writer:
         data.to_excel(writer, 'Account Assignments', index=False)
     st.markdown(get_table_download_link(excel_file), unsafe_allow_html=True)
+
 
 # Get download link for the exported file
 def get_table_download_link(file):
@@ -100,6 +109,7 @@ def get_table_download_link(file):
     b64 = base64.b64encode(bytes).decode()
     href = f'<a href="data:file/xlsx;base64,{b64}" download="{file}">Download results</a>'
     return href
+
 
 # Run the app
 if __name__ == "__main__":
