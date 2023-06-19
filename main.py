@@ -37,7 +37,7 @@ def main():
 # Adds an interface for account realignment
 def realignment_interface(data, ae_selection):
     # Create a multi-column layout
-    col1, col2 = st.beta_columns(2)
+    col1, col2 = st.columns(2)
 
     # Get unique account IDs
     accounts = data[data.columns[0]].unique().tolist()
