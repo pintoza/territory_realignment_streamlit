@@ -23,18 +23,20 @@ def main():
     if file is not None:
         data = pd.read_csv(file)
         ae_list = data[data.columns[1]].unique().tolist()
-        ae_selection = st.multiselect('Select AE(s) for realignment', ae_list)
+        # Allow users to select AEs for consideration
+        ae_selection = st.multiselect('Select AEs for Realignment:', options=list(data[data.columns[1]].unique()))
 
-        if ae_selection:
-            data = realignment_interface(data, ae_selection)
-            display_summary(data, ae_selection)
-            display_data(data)
+    if ae_selection:
+        # Display the selected AEs data
+        selected_data = data[data[data.columns[1]].isin(ae_selection)]
+        selected_data = assign_AE(selected_data)
+        st.dataframe(selected_data)
 
-        if st.button('Export Results'):
-            csv = data.to_csv(index=False)
-            b64 = base64.b64encode(csv.encode()).decode()
-            href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a>'
-            st.markdown(href, unsafe_allow_html=True)
+        # Display the summary statistics
+        display_summary(data, ae_selection)
+    else:
+        st.write("No AE selected for realignment. Please select at least one.")
+
 
 
 # Adds an interface for account realignment
