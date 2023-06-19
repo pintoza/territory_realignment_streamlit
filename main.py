@@ -8,6 +8,13 @@ import base64
 # Main function that runs the app
 def main():
     st.title("AE Territory Realignment")
+    st.markdown("""
+                ### Directions:
+                1. Upload a CSV file with three columns in the following order: Account_ID, AE, Sales LFY.
+                2. Select the AEs you want to consider for realignment.
+                3. The summary stats will be displayed for the selected AEs.
+                4. You can download the results by clicking on the 'Export Results' button.
+                """)
     
     # Load data
     data_file = st.file_uploader("Upload CSV", type=['csv'])
