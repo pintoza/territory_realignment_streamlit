@@ -43,17 +43,17 @@ def select_aes(data):
 # Display summary stats
 def display_summary(data, ae_selection):
     fig, ax = plt.subplots(2, 1, figsize=(10, 8))
-    
+
     # Number of accounts
-    accounts_per_ae = data['AE'].value_counts()
+    accounts_per_ae = data.groupby(data.columns[1]).count()[data.columns[0]]
     ax[0].bar(ae_selection, [accounts_per_ae[ae] for ae in ae_selection])
     ax[0].set_title('Number of Accounts')
-    
+
     # Sales LFY
-    sales_per_ae = data.groupby('AE')['Sales LFY'].sum()
+    sales_per_ae = data.groupby(data.columns[1]).sum()[data.columns[2]]
     ax[1].bar(ae_selection, [sales_per_ae[ae] for ae in ae_selection])
     ax[1].set_title('Sales LFY')
-    
+
     st.pyplot(fig)
 
 # Export final results to Excel
