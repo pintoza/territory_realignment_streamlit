@@ -28,9 +28,32 @@ def main():
         # If AE is selected
         if ae_selection:
             display_summary(data, ae_selection)
+            data = realignment_interface(data, ae_selection)
+            display_data(data)
             
             if st.button('Export Results'):
                 export_results(data)
+
+# Adds an interface for account realignment
+def realignment_interface(data, ae_selection):
+    # Create a multi-column layout
+    col1, col2 = st.beta_columns(2)
+
+    # Get unique account IDs
+    accounts = data[data.columns[0]].unique().tolist()
+
+    # SelectBox for account selection
+    selected_account = col1.selectbox("Select Account", accounts)
+
+    # SelectBox for AE selection
+    selected_ae = col2.selectbox("Select AE", ae_selection)
+
+    # Button to perform realignment
+    if st.button('Reassign'):
+        data.loc[data[data.columns[0]] == selected_account, data.columns[1]] = selected_ae
+        st.success(f"Account {selected_account} has been reassigned to {selected_ae}!")
+
+    return data
 
 # Loads and preprocesses the data
 def load_data(file):
