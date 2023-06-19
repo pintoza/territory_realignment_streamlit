@@ -78,7 +78,6 @@ def select_aes(data):
 
 
 # Display summary stats
-# Display summary stats
 def display_summary(data, ae_selection):
     fig, ax = plt.subplots(2, 1, figsize=(10, 8))
 
@@ -90,7 +89,7 @@ def display_summary(data, ae_selection):
     # Add bar values
     for bar in bars1:
         yval = bar.get_height()
-        ax[0].text(bar.get_x() + bar.get_width()/2, yval + 0.05, yval, ha='center', va='bottom')
+        ax[0].text(bar.get_x() + bar.get_width()/2, yval - 0.3, yval, ha='center', va='bottom', color='white', fontsize=12)
 
     # Sales LFY
     sales_per_ae = data.groupby(data.columns[1]).sum()[data.columns[2]]
@@ -100,7 +99,7 @@ def display_summary(data, ae_selection):
     # Add bar values
     for bar in bars2:
         yval = bar.get_height()
-        ax[1].text(bar.get_x() + bar.get_width()/2, yval + 0.05, round(yval, 2), ha='center', va='bottom')
+        ax[1].text(bar.get_x() + bar.get_width()/2, yval - 0.3, round(yval, 2), ha='center', va='bottom', color='white', fontsize=12)
 
     st.pyplot(fig)
 
