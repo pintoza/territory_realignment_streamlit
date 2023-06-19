@@ -26,6 +26,8 @@ def main():
         # Allow users to select AEs for consideration
         ae_selection = st.multiselect('Select AEs for Realignment:', options=list(data[data.columns[1]].unique()))
 
+    ae_selection = []
+    
     if ae_selection:
         # Display the selected AEs data
         selected_data = data[data[data.columns[1]].isin(ae_selection)]
