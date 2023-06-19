@@ -78,18 +78,29 @@ def select_aes(data):
 
 
 # Display summary stats
+# Display summary stats
 def display_summary(data, ae_selection):
     fig, ax = plt.subplots(2, 1, figsize=(10, 8))
 
     # Number of accounts
     accounts_per_ae = data.groupby(data.columns[1]).count()[data.columns[0]]
-    ax[0].bar(ae_selection, [accounts_per_ae[ae] for ae in ae_selection])
+    bars1 = ax[0].bar(ae_selection, [accounts_per_ae[ae] for ae in ae_selection])
     ax[0].set_title('Number of Accounts')
+
+    # Add bar values
+    for bar in bars1:
+        yval = bar.get_height()
+        ax[0].text(bar.get_x() + bar.get_width()/2, yval + 0.05, yval, ha='center', va='bottom')
 
     # Sales LFY
     sales_per_ae = data.groupby(data.columns[1]).sum()[data.columns[2]]
-    ax[1].bar(ae_selection, [sales_per_ae[ae] for ae in ae_selection])
+    bars2 = ax[1].bar(ae_selection, [sales_per_ae[ae] for ae in ae_selection])
     ax[1].set_title('Sales LFY')
+
+    # Add bar values
+    for bar in bars2:
+        yval = bar.get_height()
+        ax[1].text(bar.get_x() + bar.get_width()/2, yval + 0.05, round(yval, 2), ha='center', va='bottom')
 
     st.pyplot(fig)
 
