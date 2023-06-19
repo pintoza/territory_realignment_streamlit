@@ -18,6 +18,8 @@ def main():
                 5. You can download the results by clicking on the 'Export Results' button.
                 """)
 
+    ae_selection = []
+
     file = st.file_uploader("Upload data", type=['csv'])
 
     if file is not None:
@@ -26,24 +28,28 @@ def main():
         # Allow users to select AEs for consideration
         ae_selection = st.multiselect('Select AEs for Realignment:', options=list(data[data.columns[1]].unique()))
 
-    ae_selection = []
-    
     if ae_selection:
         # Display the selected AEs data
         selected_data = data[data[data.columns[1]].isin(ae_selection)]
         selected_data = assign_AE(selected_data)
         st.dataframe(selected_data)
 
-        # Call the realignment interface
-        selected_data = realignment_interface(selected_data, ae_selection)
-
         # Display the summary statistics
         display_summary(data, ae_selection)
     else:
         st.write("No AE selected for realignment. Please select at least one.")
 
-    if st.button('Export Results'):
-        export_results(selected_data)
+
+def assign_AE(df):
+    st.subheader('Reassign Accounts')
+    ae_list = df['AE'].unique().tolist()
+    with st.form(key='Assign AE Form'):
+        for i in range(df.shape[0]):
+            df.loc[i, 'AE'] = st.selectbox(f"Assign AE for Account {df.loc[i, 'Account_ID']}", options=ae_list, index=ae_list.index(df.loc[i, 'AE']), key=str(i))
+        submitted = st.form_submit_button('Update Assignments')
+        if submitted:
+            st.success("Assignments updated.")
+    return df
 
 
 # Adds an interface for account realignment
