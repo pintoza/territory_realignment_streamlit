@@ -41,7 +41,7 @@ def main():
         st.write("No AE selected for realignment. Please select at least one.")
 
     if st.button('Export Results'):
-    export_results(selected_data)
+        export_results(selected_data)
 
 
 # Adds an interface for account realignment
