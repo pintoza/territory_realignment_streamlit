@@ -21,29 +21,21 @@ def main():
     file = st.file_uploader("Upload data", type=['csv'])
 
     if file is not None:
-        data = pd.read_csv(file)
-
-        # Initialize session state if it doesn't exist
-        if 'data' not in st.session_state:
-            st.session_state.data = data
-
-        ae_list = st.session_state.data[data.columns[1]].unique().tolist()
-
+        st.session_state.data = pd.read_csv(file)
+        ae_list = st.session_state.data[st.session_state.data.columns[1]].unique().tolist()
         # Allow users to select AEs for consideration
-        ae_selection = st.multiselect('Select AEs for Realignment:', options=list(st.session_state.data[data.columns[1]].unique()), on_change=update_charts)
+        st.session_state.ae_selection = st.multiselect('Select AEs for Realignment:', options=list(st.session_state.data[st.session_state.data.columns[1]].unique()))
 
-        if ae_selection:
-            # Display the selected AEs data
-            selected_data = st.session_state.data[st.session_state.data[data.columns[1]].isin(ae_selection)]
+    if 'ae_selection' in st.session_state and st.session_state.ae_selection:
+        # Display the selected AEs data
+        selected_data = st.session_state.data[st.session_state.data[st.session_state.data.columns[1]].isin(st.session_state.ae_selection)]
+        selected_data = realignment_interface(selected_data, st.session_state.ae_selection)
+        st.dataframe(selected_data)
 
-            selected_data = assign_AE(selected_data)
-            st.dataframe(selected_data)
-
-            # Display the summary statistics
-            display_summary(st.session_state.data, ae_selection)
-
-        else:
-            st.write("No AE selected for realignment. Please select at least one.")
+        # Display the summary statistics
+        display_summary(st.session_state.data, st.session_state.ae_selection)
+    else:
+        st.write("No AE selected for realignment. Please select at least one.")
 
 
 # Adds an interface for account realignment
