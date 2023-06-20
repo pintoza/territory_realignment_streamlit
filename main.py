@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 from pandas import ExcelWriter
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import base64
 
 
@@ -30,10 +31,11 @@ def main():
         # Display the selected AEs data
         selected_data = st.session_state.data[st.session_state.data[st.session_state.data.columns[1]].isin(st.session_state.ae_selection)]
         selected_data = realignment_interface(selected_data, st.session_state.ae_selection)
+        selected_data.reset_index(drop=True, inplace=True)
         st.dataframe(selected_data)
 
         # Display the summary statistics
-        display_summary(selected_data, st.session_state.ae_selection)  # Pass selected_data here as well
+        display_summary(st.session_state.data, st.session_state.ae_selection)
 
         # Export final results to Excel
         if st.button('Export Results'):
@@ -58,33 +60,10 @@ def realignment_interface(data, ae_selection):
 
     # Button to perform realignment
     if st.button('Reassign'):
-        data.loc[data[data.columns[0]] == selected_account, data.columns[1]] = selected_ae
+        st.session_state.data.loc[st.session_state.data[data.columns[0]] == selected_account, data.columns[1]] = selected_ae
         st.success(f"Account {selected_account} has been reassigned to {selected_ae}!")
 
-    return data  # Return updated DataFrame
-
-
-def update_charts():
-    # Trigger a rerun after AE selection
-    st.experimental_rerun()
-
-
-# Loads and preprocesses the data
-def load_data(file):
-    data = pd.read_csv(file)
     return data
-
-
-# Displays a subset of the data
-def display_data(data):
-    st.write(data.head())  # You can add a slider to control the number of rows displayed
-
-
-# Allows users to select AEs
-def select_aes(data):
-    ae_list = data['AE'].unique().tolist()
-    ae_selection = st.multiselect('Select AEs for realignment', ae_list)
-    return ae_selection
 
 
 # Display summary stats
@@ -95,32 +74,25 @@ def display_summary(data, ae_selection):
     accounts_per_ae = data.groupby(data.columns[1]).count()[data.columns[0]]
     bars1 = ax[0].bar(ae_selection, [accounts_per_ae[ae] for ae in ae_selection], color='skyblue')
     ax[0].set_title('Number of Accounts')
+    ax[0].xaxis.set_tick_params(labelsize=14)
+    ax[0].yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
     # Add bar values
     for bar in bars1:
         yval = bar.get_height()
-        ax[0].text(bar.get_x() + bar.get_width()/2, yval * 0.5, yval, ha='center', va='bottom', color='black', fontsize=24)
-    
-    # Set y-ticks manually
-    ax[0].set_yticks(range(0, int(accounts_per_ae.max()) + 1))
+        ax[0].text(bar.get_x() + bar.get_width()/2, yval * 0.5, yval, ha='center', va='bottom', color='black', fontsize=12)
 
     # Sales LFY
     sales_per_ae = data.groupby(data.columns[1]).sum()[data.columns[2]]
     bars2 = ax[1].bar(ae_selection, [sales_per_ae[ae] for ae in ae_selection], color='skyblue')
     ax[1].set_title('Sales LFY')
-
-    # Set y axis to dollar format
-    ax[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: "${:,}".format(int(x))))
+    ax[1].xaxis.set_tick_params(labelsize=14)
+    ax[1].yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: '${:,.0f}'.format(x)))
 
     # Add bar values
     for bar in bars2:
         yval = bar.get_height()
-        ax[1].text(bar.get_x() + bar.get_width()/2, yval * 0.5, f'${yval:.2f}', ha='center', va='bottom', color='black', fontsize=12)
-
-    # Increase x-axis label size
-    for axs in ax:
-        for label in axs.get_xticklabels():
-            label.set_fontsize(12)  # change the font size here
+        ax[1].text(bar.get_x() + bar.get_width()/2, yval * 0.5, '${:,.0f}'.format(yval), ha='center', va='bottom', color='black', fontsize=12)
 
     st.pyplot(fig)
 
