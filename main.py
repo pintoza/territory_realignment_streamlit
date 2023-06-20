@@ -19,24 +19,30 @@ def main():
                 """)
 
     file = st.file_uploader("Upload data", type=['csv'])
-    ae_selection = []  # Initialize ae_selection to empty list
 
     if file is not None:
         data = pd.read_csv(file)
-        ae_list = data[data.columns[1]].unique().tolist()
+
+        # Initialize session state if it doesn't exist
+        if 'data' not in st.session_state:
+            st.session_state.data = data
+
+        ae_list = st.session_state.data[data.columns[1]].unique().tolist()
+
         # Allow users to select AEs for consideration
-        ae_selection = st.multiselect('Select AEs for Realignment:', options=list(data[data.columns[1]].unique()))
+        ae_selection = st.multiselect('Select AEs for Realignment:', options=list(st.session_state.data[data.columns[1]].unique()), on_change=update_charts)
 
-    if ae_selection:
-        # Display the selected AEs data
-        selected_data = data[data[data.columns[1]].isin(ae_selection)]
-        selected_data = realignment_interface(selected_data, ae_selection)  # call the correct function
-        st.dataframe(selected_data)
+        if ae_selection:
+            # Display the selected AEs data
+            selected_data = st.session_state.data[data.columns[1]].isin(ae_selection)]
+            selected_data = assign_AE(selected_data)
+            st.dataframe(selected_data)
 
-        # Display the summary statistics
-        display_summary(data, ae_selection)
-    else:
-        st.write("No AE selected for realignment. Please select at least one.")
+            # Display the summary statistics
+            display_summary(st.session_state.data, ae_selection)
+
+        else:
+            st.write("No AE selected for realignment. Please select at least one.")
 
 
 # Adds an interface for account realignment
@@ -55,10 +61,13 @@ def realignment_interface(data, ae_selection):
 
     # Button to perform realignment
     if st.button('Reassign'):
-        data.loc[data[data.columns[0]] == selected_account, data.columns[1]] = selected_ae
+        st.session_state.data.loc[st.session_state.data[data.columns[0]] == selected_account, data.columns[1]] = selected_ae
         st.success(f"Account {selected_account} has been reassigned to {selected_ae}!")
 
-    return data
+
+def update_charts():
+    # Trigger a rerun after AE selection
+    st.experimental_rerun()
 
 
 # Loads and preprocesses the data
