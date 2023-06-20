@@ -96,13 +96,13 @@ def display_summary(data, ae_selection):
     bars1 = ax[0].bar(ae_selection, [accounts_per_ae[ae] for ae in ae_selection], color='skyblue')
     ax[0].set_title('Number of Accounts')
 
-    # Set y axis to integer format
-    ax[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
-
     # Add bar values
     for bar in bars1:
         yval = bar.get_height()
-        ax[0].text(bar.get_x() + bar.get_width()/2, yval * 0.5, f'{yval:.0f}', ha='center', va='bottom', color='black', fontsize=12)
+        ax[0].text(bar.get_x() + bar.get_width()/2, yval * 0.5, yval, ha='center', va='bottom', color='black', fontsize=24)
+    
+    # Set y-ticks manually
+    ax[0].set_yticks(range(0, int(accounts_per_ae.max()) + 1))
 
     # Sales LFY
     sales_per_ae = data.groupby(data.columns[1]).sum()[data.columns[2]]
