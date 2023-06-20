@@ -34,6 +34,10 @@ def main():
 
         # Display the summary statistics
         display_summary(selected_data, st.session_state.ae_selection)  # Pass selected_data here as well
+
+        # Export final results to Excel
+        if st.button('Export Results'):
+            export_results(selected_data)
     else:
         st.write("No AE selected for realignment. Please select at least one.")
 
@@ -92,20 +96,31 @@ def display_summary(data, ae_selection):
     bars1 = ax[0].bar(ae_selection, [accounts_per_ae[ae] for ae in ae_selection], color='skyblue')
     ax[0].set_title('Number of Accounts')
 
+    # Set y axis to integer format
+    ax[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+
     # Add bar values
     for bar in bars1:
         yval = bar.get_height()
-        ax[0].text(bar.get_x() + bar.get_width()/2, yval * 0.5, yval, ha='center', va='bottom', color='black', fontsize=24)
+        ax[0].text(bar.get_x() + bar.get_width()/2, yval * 0.5, f'{yval:.0f}', ha='center', va='bottom', color='black', fontsize=12)
 
     # Sales LFY
     sales_per_ae = data.groupby(data.columns[1]).sum()[data.columns[2]]
     bars2 = ax[1].bar(ae_selection, [sales_per_ae[ae] for ae in ae_selection], color='skyblue')
     ax[1].set_title('Sales LFY')
 
+    # Set y axis to dollar format
+    ax[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: "${:,}".format(int(x))))
+
     # Add bar values
     for bar in bars2:
         yval = bar.get_height()
-        ax[1].text(bar.get_x() + bar.get_width()/2, yval * 0.5, round(yval, 2), ha='center', va='bottom', color='black', fontsize=24)
+        ax[1].text(bar.get_x() + bar.get_width()/2, yval * 0.5, f'${yval:.2f}', ha='center', va='bottom', color='black', fontsize=12)
+
+    # Increase x-axis label size
+    for axs in ax:
+        for label in axs.get_xticklabels():
+            label.set_fontsize(12)  # change the font size here
 
     st.pyplot(fig)
 
