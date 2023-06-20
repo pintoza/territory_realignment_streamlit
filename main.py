@@ -33,7 +33,7 @@ def main():
         st.dataframe(selected_data)
 
         # Display the summary statistics
-        display_summary(st.session_state.data, st.session_state.ae_selection)
+        display_summary(selected_data, st.session_state.ae_selection)  # Pass selected_data here as well
     else:
         st.write("No AE selected for realignment. Please select at least one.")
 
@@ -54,8 +54,10 @@ def realignment_interface(data, ae_selection):
 
     # Button to perform realignment
     if st.button('Reassign'):
-        st.session_state.data.loc[st.session_state.data[data.columns[0]] == selected_account, data.columns[1]] = selected_ae
+        data.loc[data[data.columns[0]] == selected_account, data.columns[1]] = selected_ae
         st.success(f"Account {selected_account} has been reassigned to {selected_ae}!")
+
+    return data  # Return updated DataFrame
 
 
 def update_charts():
