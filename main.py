@@ -30,7 +30,7 @@ def main():
     if ae_selection:
         # Display the selected AEs data
         selected_data = data[data[data.columns[1]].isin(ae_selection)]
-        selected_data = assign_AE(selected_data)
+        selected_data = realignment_interface(selected_data, ae_selection)  # call the correct function
         st.dataframe(selected_data)
 
         # Display the summary statistics
