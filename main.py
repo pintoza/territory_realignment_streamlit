@@ -19,6 +19,7 @@ def main():
                 """)
 
     file = st.file_uploader("Upload data", type=['csv'])
+    ae_selection = []  # Initialize ae_selection to empty list
 
     if file is not None:
         data = pd.read_csv(file)
@@ -32,16 +33,10 @@ def main():
         selected_data = assign_AE(selected_data)
         st.dataframe(selected_data)
 
-        # Call the realignment interface
-        selected_data = realignment_interface(selected_data, ae_selection)
-
         # Display the summary statistics
         display_summary(data, ae_selection)
     else:
         st.write("No AE selected for realignment. Please select at least one.")
-
-    if st.button('Export Results'):
-        export_results(selected_data)
 
 
 # Adds an interface for account realignment
