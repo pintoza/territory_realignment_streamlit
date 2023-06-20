@@ -34,7 +34,8 @@ def main():
 
         if ae_selection:
             # Display the selected AEs data
-            selected_data = st.session_state.data[data.columns[1]].isin(ae_selection)]
+            selected_data = st.session_state.data[st.session_state.data[data.columns[1]].isin(ae_selection)]
+
             selected_data = assign_AE(selected_data)
             st.dataframe(selected_data)
 
